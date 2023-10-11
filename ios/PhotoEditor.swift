@@ -56,11 +56,18 @@ class PhotoEditor: NSObject, ZLEditImageControllerDelegate {
         let stickers = options["stickers"] as? [String] ?? []
         ZLImageEditorConfiguration.default().imageStickerContainerView = StickerView(stickers: stickers)
         
+        let language = options["language"] as? String ?? "system"
+        switch language {
+        case "cn":
+            ZLImageEditorConfiguration.default().languageType = .chineseSimplified
+        case "vi":
+            ZLImageEditorConfiguration.default().languageType = .vietnamese
+        default:
+            ZLImageEditorConfiguration.default().languageType = .system
+        }
         
         //Config
-        ZLImageEditorConfiguration.default().editDoneBtnBgColor = UIColor(red:255/255.0, green:238/255.0, blue:101/255.0, alpha:1.0)
-
-        ZLImageEditorConfiguration.default().editImageTools = [.draw, .clip, .filter, .imageSticker, .textSticker]
+        ZLImageEditorConfiguration.default().editImageTools = [.draw, .imageSticker, .textSticker, .clip, .filter]
         
         //Filters Lut
         do {
