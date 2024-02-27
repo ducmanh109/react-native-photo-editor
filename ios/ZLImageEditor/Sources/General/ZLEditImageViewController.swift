@@ -25,6 +25,8 @@
 //  THE SOFTWARE.
 
 import UIKit
+import GiphyUISDK
+import SDWebImage
 
 public protocol ZLEditImageControllerDelegate: class {
     func onCancel()
@@ -641,9 +643,13 @@ public class ZLEditImageViewController: UIViewController {
     }
     
     func imageStickerBtnClick() {
-        ZLImageEditorConfiguration.default().imageStickerContainerView?.show(in: self.view)
-        self.setToolView(show: false)
-        self.imageStickerContainerIsHidden = false
+        let giphy = GiphyViewController()
+        giphy.delegate = self
+        giphy.mediaTypeConfig = [.gifs, .stickers, .text, .emoji]
+        present(giphy, animated: true, completion: nil)
+//        ZLImageEditorConfiguration.default().imageStickerContainerView?.show(in: self.view)
+//        self.setToolView(show: false)
+//        self.imageStickerContainerIsHidden = false
     }
     
     func textStickerBtnClick() {
@@ -1040,6 +1046,47 @@ extension ZLEditImageViewController: UIGestureRecognizerDelegate {
     
 }
 
+extension ZLEditImageViewController: GiphyDelegate {
+    public func didSelectMedia(giphyViewController: GiphyViewController, media: GPHMedia)   {
+   
+        // your user tapped a GIF!
+        let gifURL = media.url(rendition: .fixedWidth, fileType: .gif) ?? media.url
+
+        getUIImage(url: gifURL) { image in
+            DispatchQueue.main.async {
+                self.addImageStickerView(image)
+            }
+        } reject: {_ in
+            NSLog("LOAD_IMAGE_FAILED")
+        }
+        
+        giphyViewController.dismiss(animated: true, completion: nil)
+   }
+   
+    public func didDismiss(controller: GiphyViewController?) {
+        // your user dismissed the controller without selecting a GIF.
+   }
+    
+    func getUIImage (url: String ,completion:@escaping (UIImage) -> (), reject:@escaping(String)->()){
+        if let path = URL(string: url) {
+            SDWebImageManager.shared.loadImage(with: path, options: .continueInBackground, progress: { (recieved, expected, nil) in
+            }, completed: { (downloadedImage, data, error, SDImageCacheType, true, imageUrlString) in
+                DispatchQueue.main.async {
+                    if(error != nil){
+                        print("error", error as Any)
+                        reject("false")
+                        return;
+                    }
+                    if downloadedImage != nil{
+                        completion(downloadedImage!)
+                    }
+                }
+            })
+        }else{
+            reject("false")
+        }
+    }
+}
 
 // MARK: scroll view delegate
 extension ZLEditImageViewController: UIScrollViewDelegate {

@@ -7,6 +7,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -17,7 +18,6 @@ import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.view.animation.AnticipateOvershootInterpolator
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.NonNull
@@ -37,6 +37,13 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.giphy.sdk.analytics.GiphyPingbacks.context
+import com.giphy.sdk.core.models.Media
+import com.giphy.sdk.core.models.enums.RenditionType
+import com.giphy.sdk.ui.GPHContentType
+import com.giphy.sdk.ui.GPHSettings
+import com.giphy.sdk.ui.views.GPHMediaView
+import com.giphy.sdk.ui.views.GiphyDialogFragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
 import com.reactnativephotoeditor.R
@@ -51,19 +58,23 @@ import ja.burhanrashid52.photoeditor.*
 import ja.burhanrashid52.photoeditor.PhotoEditor.OnSaveListener
 import ja.burhanrashid52.photoeditor.shape.ShapeBuilder
 import ja.burhanrashid52.photoeditor.shape.ShapeType
+import java.io.BufferedInputStream
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.IOException
+import java.net.URL
 
 
 open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, View.OnClickListener,
   PropertiesBSFragment.Properties, ShapeBSFragment.Properties, StickerListener,
-  OnItemSelected, FilterListener {
+  OnItemSelected, FilterListener, GiphyDialogFragment.GifSelectionListener {
   private var mPhotoEditor: PhotoEditor? = null
   private var mProgressDialog: ProgressDialog? = null
   private var mPhotoEditorView: PhotoEditorView? = null
   private var mPropertiesBSFragment: PropertiesBSFragment? = null
   private var mShapeBSFragment: ShapeBSFragment? = null
   private var mShapeBuilder: ShapeBuilder? = null
-  private var mStickerFragment: StickerFragment? = null
+  private var mStickerFragment: GiphyDialogFragment? = null
   private var mTxtCurrentTool: TextView? = null
   private var mRvTools: RecyclerView? = null
   private var mRvFilters: RecyclerView? = null
@@ -94,13 +105,15 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
 
     mPropertiesBSFragment = PropertiesBSFragment()
     mPropertiesBSFragment!!.setPropertiesChangeListener(this)
+    val settings = GPHSettings()
+    settings.mediaTypeConfig = arrayOf(GPHContentType.gif, GPHContentType.sticker, GPHContentType.text, GPHContentType.emoji)
 
-    mStickerFragment = StickerFragment()
-    mStickerFragment!!.setStickerListener(this)
+    mStickerFragment = GiphyDialogFragment.newInstance()
+//    mStickerFragment!!.setStickerListener(this)
 
 //    val stream: InputStream = assets.open("image.png")
 //    val d = Drawable.createFromStream(stream, null)
-    mStickerFragment!!.setData(stickers)
+//    mStickerFragment!!.setData(stickers)
 
     mShapeBSFragment = ShapeBSFragment()
     mShapeBSFragment!!.setPropertiesChangeListener(this)
@@ -377,7 +390,10 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
         mTxtCurrentTool!!.setText(R.string.label_filter)
         showFilter(true)
       }
-      ToolType.STICKER -> showBottomSheetDialogFragment(mStickerFragment)
+//      ToolType.STICKER -> showBottomSheetDialogFragment(mStickerFragment)
+      ToolType.STICKER -> {
+        mStickerFragment?.show(supportFragmentManager, "gifs_dialog")
+      }
     }
   }
 
@@ -430,5 +446,49 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
     private val TAG = PhotoEditorActivity::class.java.simpleName
     const val PINCH_TEXT_SCALABLE_INTENT_KEY = "PINCH_TEXT_SCALABLE"
     const val READ_WRITE_STORAGE = 52
+  }
+
+  private  fun handleBitmapImage(path: String?): Bitmap? {
+//    val url = URL(path)
+//    Log.d(">>>>>>>>>",url.path)
+//    val policy = StrictMode.ThreadPolicy.Builder().permitAll().build()
+//    StrictMode.setThreadPolicy(policy)
+//    return BitmapFactory.decodeStream(url.openConnection().getInputStream())
+    try {
+      val url = URL(path)
+      val `in` = url.openConnection().getInputStream()
+      val bis = BufferedInputStream(`in`, 1024 * 8)
+      val out = ByteArrayOutputStream()
+      var len = 0
+      val buffer = ByteArray(1024)
+      while (bis.read(buffer).also { len = it } != -1) {
+        out.write(buffer, 0, len)
+      }
+      out.close()
+      bis.close()
+      val data = out.toByteArray()
+
+      return BitmapFactory.decodeByteArray(data, 0, data.size)
+    } catch (e: IOException) {
+      e.printStackTrace()
+      return null
+    }
+  }
+
+  override fun didSearchTerm(term: String) {
+    TODO("Not yet implemented")
+  }
+
+  override fun onDismissed(selectedContentType: GPHContentType) {
+    TODO("Not yet implemented")
+  }
+
+  override fun onGifSelected(media: Media, searchTerm: String?, selectedContentType: GPHContentType) {
+    Log.d("media.url", media.url + "")
+
+    val bitmap = handleBitmapImage(media.url);
+    Log.d("bitmap", bitmap.toString())
+//    mPhotoEditor!!.addImage(bitmap)
+//    mTxtCurrentTool!!.setText(R.string.label_sticker)
   }
 }
