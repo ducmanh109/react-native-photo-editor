@@ -1,12 +1,8 @@
 import React, { useState } from 'react';
-import {
-  TouchableOpacity,
-  Image as RNImage,
-  StyleSheet,
-  ViewPropTypes,
-} from 'react-native';
+import { TouchableOpacity, Image as RNImage, StyleSheet } from 'react-native';
 import PhotoEditor from '@baronha/react-native-photo-editor';
 import PropTypes from 'prop-types';
+import ViewPropTypes from 'deprecated-react-native-prop-types';
 
 import { stickers } from '../assets/data';
 
