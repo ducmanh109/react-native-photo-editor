@@ -213,7 +213,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
     btnSave.setTextColor(Color.BLACK)
 
     mPhotoEditorView = findViewById(R.id.photoEditorView)
-    mTxtCurrentTool = findViewById(R.id.txtCurrentTool)
+//    mTxtCurrentTool = findViewById(R.id.txtCurrentTool)
     mRvTools = findViewById(R.id.rvConstraintTools)
     mRvFilters = findViewById(R.id.rvFilterView)
     mRootView = findViewById(R.id.rootView)
