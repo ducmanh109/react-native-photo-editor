@@ -476,18 +476,16 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   }
 
   override fun didSearchTerm(term: String) {
-    TODO("Not yet implemented")
   }
 
   override fun onDismissed(selectedContentType: GPHContentType) {
-    TODO("Not yet implemented")
   }
 
   override fun onGifSelected(media: Media, searchTerm: String?, selectedContentType: GPHContentType) {
     Log.d("media.url", media.url + "")
 
-    val bitmap = handleBitmapImage(media.url);
-    Log.d("bitmap", bitmap.toString())
+//    val bitmap = handleBitmapImage(media.url);
+//    Log.d("bitmap", bitmap.toString())
 //    mPhotoEditor!!.addImage(bitmap)
 //    mTxtCurrentTool!!.setText(R.string.label_sticker)
   }
