@@ -37,12 +37,9 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
-import com.giphy.sdk.analytics.GiphyPingbacks.context
 import com.giphy.sdk.core.models.Media
-import com.giphy.sdk.core.models.enums.RenditionType
 import com.giphy.sdk.ui.GPHContentType
 import com.giphy.sdk.ui.GPHSettings
-import com.giphy.sdk.ui.views.GPHMediaView
 import com.giphy.sdk.ui.views.GiphyDialogFragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
@@ -54,8 +51,13 @@ import com.reactnativephotoeditor.activity.filters.FilterViewAdapter
 import com.reactnativephotoeditor.activity.tools.EditingToolsAdapter
 import com.reactnativephotoeditor.activity.tools.EditingToolsAdapter.OnItemSelected
 import com.reactnativephotoeditor.activity.tools.ToolType
-import ja.burhanrashid52.photoeditor.*
+import ja.burhanrashid52.photoeditor.OnPhotoEditorListener
+import ja.burhanrashid52.photoeditor.PhotoEditor
 import ja.burhanrashid52.photoeditor.PhotoEditor.OnSaveListener
+import ja.burhanrashid52.photoeditor.PhotoEditorView
+import ja.burhanrashid52.photoeditor.PhotoFilter
+import ja.burhanrashid52.photoeditor.TextStyleBuilder
+import ja.burhanrashid52.photoeditor.ViewType
 import ja.burhanrashid52.photoeditor.shape.ShapeBuilder
 import ja.burhanrashid52.photoeditor.shape.ShapeType
 import java.io.BufferedInputStream
@@ -75,7 +77,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   private var mShapeBSFragment: ShapeBSFragment? = null
   private var mShapeBuilder: ShapeBuilder? = null
   private var mStickerFragment: GiphyDialogFragment? = null
-  private var mTxtCurrentTool: TextView? = null
+//  private var mTxtCurrentTool: TextView? = null
   private var mRvTools: RecyclerView? = null
   private var mRvFilters: RecyclerView? = null
   private val mEditingToolsAdapter = EditingToolsAdapter(this)
@@ -225,7 +227,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
       val styleBuilder = TextStyleBuilder()
       styleBuilder.withTextColor(newColorCode)
       mPhotoEditor!!.editText(rootView, inputText, styleBuilder)
-      mTxtCurrentTool!!.setText(R.string.label_text)
+//      mTxtCurrentTool!!.setText(R.string.label_text)
     }
   }
 
@@ -280,7 +282,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
       Manifest.permission.WRITE_EXTERNAL_STORAGE
     ) == PackageManager.PERMISSION_GRANTED
     if (hasStoragePermission || isSdkHigherThan28()) {
-      showLoading("Saving...")
+      showLoading("保存...")
       val path: File = Environment.getExternalStoragePublicDirectory(
         Environment.DIRECTORY_PICTURES
       )
@@ -323,17 +325,17 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
 
   override fun onColorChanged(colorCode: Int) {
     mPhotoEditor!!.setShape(mShapeBuilder!!.withShapeColor(colorCode))
-    mTxtCurrentTool!!.setText(R.string.label_brush)
+//    mTxtCurrentTool!!.setText(R.string.label_brush)
   }
 
   override fun onOpacityChanged(opacity: Int) {
     mPhotoEditor!!.setShape(mShapeBuilder!!.withShapeOpacity(opacity))
-    mTxtCurrentTool!!.setText(R.string.label_brush)
+//    mTxtCurrentTool!!.setText(R.string.label_brush)
   }
 
   override fun onShapeSizeChanged(shapeSize: Int) {
     mPhotoEditor!!.setShape(mShapeBuilder!!.withShapeSize(shapeSize.toFloat()))
-    mTxtCurrentTool!!.setText(R.string.label_brush)
+//    mTxtCurrentTool!!.setText(R.string.label_brush)
   }
 
   override fun onShapePicked(shapeType: ShapeType) {
@@ -342,15 +344,15 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
 
   override fun onStickerClick(bitmap: Bitmap) {
     mPhotoEditor!!.addImage(bitmap)
-    mTxtCurrentTool!!.setText(R.string.label_sticker)
+//    mTxtCurrentTool!!.setText(R.string.label_sticker)
   }
 
   private fun showSaveDialog() {
     val builder = AlertDialog.Builder(this)
     builder.setMessage(getString(R.string.msg_save_image))
-    builder.setPositiveButton("Save") { _: DialogInterface?, _: Int -> saveImage() }
-    builder.setNegativeButton("Cancel") { dialog: DialogInterface, _: Int -> dialog.dismiss() }
-    builder.setNeutralButton("Discard") { _: DialogInterface?, _: Int -> onCancel() }
+    builder.setPositiveButton(R.string.save) { _: DialogInterface?, _: Int -> saveImage() }
+    builder.setNegativeButton(R.string.cancel) { dialog: DialogInterface, _: Int -> dialog.dismiss() }
+    builder.setNeutralButton(R.string.discard) { _: DialogInterface?, _: Int -> onCancel() }
     builder.create().show()
   }
 
@@ -370,7 +372,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
         mPhotoEditor!!.setBrushDrawingMode(true)
         mShapeBuilder = ShapeBuilder()
         mPhotoEditor!!.setShape(mShapeBuilder)
-        mTxtCurrentTool!!.setText(R.string.label_shape)
+//        mTxtCurrentTool!!.setText(R.string.label_shape)
         showBottomSheetDialogFragment(mShapeBSFragment)
       }
       ToolType.TEXT -> {
@@ -379,15 +381,15 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
           val styleBuilder = TextStyleBuilder()
           styleBuilder.withTextColor(colorCode)
           mPhotoEditor!!.addText(inputText, styleBuilder)
-          mTxtCurrentTool!!.setText(R.string.label_text)
+//          mTxtCurrentTool!!.setText(R.string.label_text)
         }
       }
       ToolType.ERASER -> {
         mPhotoEditor!!.brushEraser()
-        mTxtCurrentTool!!.setText(R.string.label_eraser_mode)
+//        mTxtCurrentTool!!.setText(R.string.label_eraser_mode)
       }
       ToolType.FILTER -> {
-        mTxtCurrentTool!!.setText(R.string.label_filter)
+//        mTxtCurrentTool!!.setText(R.string.label_filter)
         showFilter(true)
       }
 //      ToolType.STICKER -> showBottomSheetDialogFragment(mStickerFragment)
@@ -434,7 +436,7 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   override fun onBackPressed() {
     if (mIsFilterVisible) {
       showFilter(false)
-      mTxtCurrentTool!!.setText(R.string.app_name)
+//      mTxtCurrentTool!!.setText(R.string.app_name)
     } else if (!mPhotoEditor!!.isCacheEmpty) {
       showSaveDialog()
     } else {
@@ -481,12 +483,25 @@ open class PhotoEditorActivity : AppCompatActivity(), OnPhotoEditorListener, Vie
   override fun onDismissed(selectedContentType: GPHContentType) {
   }
 
-  override fun onGifSelected(media: Media, searchTerm: String?, selectedContentType: GPHContentType) {
-    Log.d("media.url", media.url + "")
+  private fun convertImageToBitmap(gifUrl: String) {
+    Glide.with(this)
+      .asBitmap()
+      .load(gifUrl)
+      .into(object : com.bumptech.glide.request.target.CustomTarget<Bitmap>() {
+        override fun onResourceReady(resource: Bitmap, transition: com.bumptech.glide.request.transition.Transition<in Bitmap>?) {
+          mPhotoEditor?.addImage(resource)
+        }
 
-//    val bitmap = handleBitmapImage(media.url);
-//    Log.d("bitmap", bitmap.toString())
-//    mPhotoEditor!!.addImage(bitmap)
-//    mTxtCurrentTool!!.setText(R.string.label_sticker)
+        override fun onLoadCleared(placeholder: Drawable?) {
+        }
+      })
+  }
+
+  override fun onGifSelected(media: Media, searchTerm: String?, selectedContentType: GPHContentType) {
+    val gifUrl = media.images.original?.gifUrl
+
+    if (gifUrl != null) {
+      convertImageToBitmap(gifUrl)
+    }
   }
 }
