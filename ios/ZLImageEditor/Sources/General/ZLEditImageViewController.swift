@@ -432,8 +432,12 @@ public class ZLEditImageViewController: UIViewController {
         self.view.addSubview(self.bottomShadowView)
         
         self.bottomShadowLayer = CAGradientLayer()
-        self.bottomShadowLayer.colors = [color2, color1]
-        self.bottomShadowLayer.locations = [0, 1]
+        self.bottomShadowLayer.colors = [
+            UIColor(red: 37/255, green: 37/255, blue: 37/255, alpha: 0.0).cgColor,
+            UIColor(red: 37/255, green: 37/255, blue: 37/255, alpha: 0.3).cgColor,
+            UIColor(red: 37/255, green: 37/255, blue: 37/255, alpha: 0.6).cgColor
+        ]
+      self.bottomShadowLayer.locations = [0, 0.3, 0.6]
         self.bottomShadowView.layer.addSublayer(self.bottomShadowLayer)
         
         let editToolLayout = UICollectionViewFlowLayout()
@@ -442,7 +446,7 @@ public class ZLEditImageViewController: UIViewController {
         editToolLayout.minimumInteritemSpacing = 20
         editToolLayout.scrollDirection = .horizontal
         self.editToolCollectionView = UICollectionView(frame: .zero, collectionViewLayout: editToolLayout)
-        self.editToolCollectionView.backgroundColor = .clear
+        self.editToolCollectionView.backgroundColor = UIColor(red: 0, green: 0, blue: 0, alpha: 0)
         self.editToolCollectionView.delegate = self
         self.editToolCollectionView.dataSource = self
         self.editToolCollectionView.showsHorizontalScrollIndicator = false
@@ -1353,13 +1357,13 @@ class ZLEditToolCell: UICollectionViewCell {
                 self.icon.highlightedImage = getImage("zl_drawLine_selected")
             case .clip?:
                 self.icon.image = getImage("zl_clip")
-                self.icon.highlightedImage = getImage("zl_clip")
+                self.icon.highlightedImage = getImage("zl_clip_selected")
             case .imageSticker?:
                 self.icon.image = getImage("zl_imageSticker")
-                self.icon.highlightedImage = getImage("zl_imageSticker")
+                self.icon.highlightedImage = getImage("zl_imageSticker_selected")
             case .textSticker?:
                 self.icon.image = getImage("zl_textSticker")
-                self.icon.highlightedImage = getImage("zl_textSticker")
+                self.icon.highlightedImage = getImage("zl_textSticker_selected")
             case .mosaic?:
                 self.icon.image = getImage("zl_mosaic")
                 self.icon.highlightedImage = getImage("zl_mosaic_selected")

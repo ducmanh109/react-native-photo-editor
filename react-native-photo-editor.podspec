@@ -19,7 +19,7 @@ Pod::Spec.new do |s|
   s.dependency "React-Core"
   s.dependency "SDWebImage", "~> 5.15.8"
   s.dependency 'SDWebImageWebPCoder', '~> 0.11.0'
-  s.dependency "Giphy", "2.2.7"
+  s.dependency "Giphy", "2.2.13"
 
   s.subspec 'ZLImageEditor' do |zl|
     zl.name             = "ZLImageEditor"
